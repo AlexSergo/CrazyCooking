@@ -56,6 +56,8 @@ namespace CookingPrototype.Controllers {
 		}
 
 		void Update() {
+			if (GameplayController.Instance.State == GameState.WaitingForStart)
+				return;
 			if ( !HasFreePlaces ) {
 				return;
 			}
@@ -139,7 +141,27 @@ namespace CookingPrototype.Controllers {
 		/// <param name="order">Заказ, который пытаемся отдать</param>
 		/// <returns>Флаг - результат, удалось ли успешно отдать заказ</returns>
 		public bool ServeOrder(Order order) {
-			throw  new NotImplementedException("ServeOrder: this feature is not implemented.");
+
+			float minWaitTime = float.MaxValue;
+			Customer customer = null;
+			foreach (var place in CustomerPlaces)
+			{
+				if (place.CurCustomer == null) continue;
+				foreach (var orderPlace in place.CurCustomer.OrderPlaces)
+				{
+					if (orderPlace.CurOrder == order && place.CurCustomer.WaitTime < minWaitTime)
+					{
+						minWaitTime = place.CurCustomer.WaitTime;
+						customer = place.CurCustomer;
+					}
+				}
+			}
+			if (customer == null)
+				return false;
+			customer.ServeOrder(order);
+			if (customer.IsComplete)
+				FreeCustomer(customer);
+			return true;
 		}
 	}
 }

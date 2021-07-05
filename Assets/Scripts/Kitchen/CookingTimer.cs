@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-
+using CookingPrototype.Controllers;
 using System;
 
 namespace CookingPrototype.Kitchen {
@@ -52,6 +52,11 @@ namespace CookingPrototype.Kitchen {
 		}
 
 		void Update() {
+			if (GameplayController.Instance.State == GameState.WaitingForStart) 
+			{
+				Foreground.fillAmount = 0;
+				return;
+			}
 			if ( Place == null ) {
 				return;
 			}

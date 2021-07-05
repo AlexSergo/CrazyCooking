@@ -7,6 +7,13 @@ using CookingPrototype.UI;
 
 using JetBrains.Annotations;
 
+public enum GameState
+{
+	WaitingForStart,
+	Continuation,
+	GameOver
+}
+
 namespace CookingPrototype.Controllers {
 	public sealed class GameplayController : MonoBehaviour {
 		public static GameplayController Instance { get; private set; }
@@ -14,7 +21,9 @@ namespace CookingPrototype.Controllers {
 		public GameObject TapBlock   = null;
 		public WinWindow  WinWindow  = null;
 		public LoseWindow LoseWindow = null;
+		public StartWindow StartWindow = null;
 
+		public GameState State {get; private set;} = GameState.WaitingForStart;
 
 		int _ordersTarget = 0;
 
@@ -37,6 +46,12 @@ namespace CookingPrototype.Controllers {
 			Instance = this;
 		}
 
+		void Start()
+		{
+			TapBlock?.SetActive(true);
+			StartWindow.Show();
+		}
+
 		void OnDestroy() {
 			if ( Instance == this ) {
 				Instance = null;
@@ -56,6 +71,7 @@ namespace CookingPrototype.Controllers {
 		}
 
 		void EndGame(bool win) {
+			State = GameState.GameOver;
 			Time.timeScale = 0f;
 			TapBlock?.SetActive(true);
 			if ( win ) {
@@ -69,6 +85,7 @@ namespace CookingPrototype.Controllers {
 			TapBlock?.SetActive(false);
 			WinWindow?.Hide();
 			LoseWindow?.Hide();
+			StartWindow?.Hide();
 		}
 
 		[UsedImplicitly]
@@ -84,6 +101,7 @@ namespace CookingPrototype.Controllers {
 		}
 
 		public void Restart() {
+			State = GameState.Continuation;
 			Init();
 			CustomersController.Instance.Init();
 			HideWindows();
